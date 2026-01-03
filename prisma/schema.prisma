@@ -1,0 +1,187 @@
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id                String   @id @default(uuid())
+  externalId        String   @unique 
+  username          String?
+  email             String?  @unique
+
+  walletAddress     String?  @unique
+  encryptedSeed     String? 
+  
+  // Kalshi API Credentials (shared for now, per-user later)
+  // For MVP, all users use the same Kalshi account from env
+  // Later: each user can have their own Kalshi API keys
+  apiKeys           UserApiKey[]
+  
+  // Trading Activity
+  orders            Order[]
+  positions         Position[]
+  
+  // Metadata
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([externalId])
+  @@index([email])
+}
+
+model UserApiKey {
+  id              String   @id @default(uuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Kalshi API Credentials
+  accessKey       String   // KALSHI-ACCESS-KEY (can be stored as-is or hashed)
+  encryptedPrivateKey String   // RSA Private Key (encrypted for security)
+  
+  // Metadata
+  name            String?  @default("Default Kalshi Account")
+  lastUsedAt      DateTime?
+  expiresAt       DateTime?
+  isActive        Boolean  @default(true)
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([userId])
+  @@index([accessKey])
+}
+
+
+model Order {
+  id              String   @id @default(uuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Kalshi Order Details
+  kalshiOrderId   String?  @unique  // Order ID from Kalshi API
+  ticker          String             // Market ticker (e.g., "TRUMPWIN-YES")
+  eventTicker     String             // Event ticker (e.g., "TRUMPWIN")
+  
+  // Order Specification
+  side            OrderSide          // YES or NO
+  action          OrderAction        // BUY or SELL
+  type            OrderType @default(LIMIT)  // LIMIT or MARKET
+  count           Int                // Number of contracts
+  
+  // Pricing (in cents, 1-99)
+  yesPrice        Int?               // Price for YES side (if side=YES)
+  noPrice         Int?               // Price for NO side (if side=NO)
+  yesPriceDollars String?            // Decimal price (e.g., "0.55")
+  noPriceDollars  String?
+  
+  // Execution Details
+  fillCount       Int       @default(0)  // Filled contracts
+  remainingCount  Int?                   // Remaining unfilled
+  avgPrice        Decimal?  @db.Decimal(10, 4)
+  
+  // Fees & Costs
+  takerFees       Int       @default(0)  // Fees in cents
+  makerFees       Int       @default(0)
+  takerFeesDollars String?
+  makerFeesDollars String?
+  totalCost       Int?                   // Total cost in cents
+  totalCostDollars String?
+  
+  // Order Status & Metadata
+  status          OrderStatus @default(PENDING)
+  clientOrderId   String?    @unique     // Client-generated ID
+  queuePosition   Int?                   // Position in order book
+  expirationTime  DateTime?
+  
+  
+  // Error Handling
+  errorMessage    String?
+  
+  // Timestamps
+  createdTime     DateTime  @default(now())
+  updatedTime     DateTime  @updatedAt
+  executedAt      DateTime?
+
+  @@index([userId])
+  @@index([ticker])
+  @@index([eventTicker])
+  @@index([status])
+  @@index([kalshiOrderId])
+}
+
+
+model Position {
+  id              String   @id @default(uuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Market Info
+  ticker          String             // Market ticker
+  eventTicker     String             // Event ticker
+  
+  // Position Details
+  position        Int       @default(0)  // Net position (positive = long, negative = short)
+  totalTraded     Int       @default(0)  // Total contracts traded
+  totalTradedDollars String?
+  
+  // P&L Tracking
+  marketExposure  Int       @default(0)  // Current exposure in cents
+  marketExposureDollars String?
+  realizedPnl     Int       @default(0)  // Realized profit/loss in cents
+  realizedPnlDollars String?
+  unrealizedPnl   Int       @default(0)  // Unrealized P&L
+  
+  // Fees
+  feesPaid        Int       @default(0)
+  feesPaidDollars String?
+  
+  // Order Management
+  restingOrdersCount Int    @default(0)  // Active orders for this market
+  
+  // Settlement
+  isSettled       Boolean   @default(false)
+  marketResult    String?   // "yes" or "no" when settled
+  settlementValue Int?      // Payout in cents
+  settledTime     DateTime?
+  
+  // Metadata
+  lastUpdatedTs   DateTime  @updatedAt
+  createdAt       DateTime  @default(now())
+
+  @@unique([userId, ticker])
+  @@index([userId])
+  @@index([ticker])
+  @@index([eventTicker])
+  @@index([isSettled])
+}
+
+
+enum OrderSide {
+  YES
+  NO
+}
+
+enum OrderAction {
+  BUY
+  SELL
+}
+
+enum OrderType {
+  MARKET
+  LIMIT
+}
+
+enum OrderStatus {
+  PENDING      // Order created but not submitted
+  RESTING      // Order in orderbook waiting
+  CANCELED     // Order canceled
+  EXECUTED     // Order fully filled
+  EXPIRED      // Order expired
+  PARTIALLY_FILLED  // Order partially filled
+  FAILED       // Order failed
+}
