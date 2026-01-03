@@ -55,7 +55,7 @@ export async function GET(req: NextRequest) {
               {
                 label: 'Browse Markets',
                 href: `${requestUrl.origin}/api/blinks/markets`,
-                type: 'external-link',
+                type: 'external-link' as const,
               },
             ],
           },
@@ -95,7 +95,7 @@ export async function GET(req: NextRequest) {
             {
               label: 'Browse Markets',
               href: `${requestUrl.origin}/api/blinks/markets`,
-              type: 'external-link',
+              type: 'external-link' as const,
             },
             ...positions.slice(0, 3).map((position) => ({
               label: `Trade ${position.ticker}`,

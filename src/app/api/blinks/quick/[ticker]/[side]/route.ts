@@ -73,22 +73,22 @@ export async function GET(
           {
             label: `Buy ${normalizedSide.toUpperCase()} $10`,
             href: `${baseHref}?amount=10`,
-            type: "external-link"
+            type: "post"
           },
           {
             label: `Buy ${normalizedSide.toUpperCase()} $25`,
             href: `${baseHref}?amount=25`,
-            type: "external-link"
+            type: "post"
           },
           {
             label: `Buy ${normalizedSide.toUpperCase()} $50`,
             href: `${baseHref}?amount=50`,
-            type: "external-link"
+            type: "post"
           },
           {
             label: `Buy ${normalizedSide.toUpperCase()} $100`,
             href: `${baseHref}?amount=100`,
-            type: 'external-link'
+            type: 'post'
           },
         ],
       },
