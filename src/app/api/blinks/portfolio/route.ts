@@ -93,14 +93,14 @@ export async function GET(req: NextRequest) {
         links: {
           actions: [
             {
+              type: 'external-link' as const,
               label: 'Browse Markets',
               href: `${requestUrl.origin}/api/blinks/markets`,
-              type: 'external-link' as const,
             },
             ...positions.slice(0, 3).map((position) => ({
+              type: 'external-link' as const,
               label: `Trade ${position.ticker}`,
               href: `${baseUrl}/${position.ticker}?account=${account}`,
-              type: 'external-link' as const,
             })),
           ],
         },

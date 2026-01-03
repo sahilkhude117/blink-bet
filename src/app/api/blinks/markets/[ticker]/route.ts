@@ -68,26 +68,27 @@ export async function GET(
             links: {
                 actions: [
                     {
+                        type: "post" as const,
                         label: "Buy YES $10",
                         href: `${baseHref}?action=buy_yes&amount=10`,
-                        type: "post"
                     },
                     {
+                        type: "post" as const,
                         label: "Buy YES $25",
                         href: `${baseHref}?action=buy_yes&amount=25`,
-                        type: "post"
                     },
                     {
+                        type: "post" as const,
                         label: "Buy NO $10",
                         href: `${baseHref}?action=buy_no&amount=10`,
-                        type: "post"
                     },
                     {
+                        type: "post" as const,
                         label: "Buy NO $25",
                         href: `${baseHref}?action=buy_no&amount=25`,
-                        type: "post"
                     },
                     {
+                        type: "post" as const,
                         label: "Buy YES with Custom Amount",
                         href: `${baseHref}?action=buy_yes&amount={amount}`,
                         parameters: [
@@ -97,9 +98,9 @@ export async function GET(
                                 required: true
                             }
                         ],
-                        type: "post"
                     },
                     {
+                        type: "post" as const,
                         label: "Buy NO with Custom Amount",
                         href: `${baseHref}?action=buy_no&amount={amount}`,
                         parameters: [
@@ -109,7 +110,6 @@ export async function GET(
                                 required: true
                             }
                         ],
-                        type: "post"
                     }
                 ]
             }

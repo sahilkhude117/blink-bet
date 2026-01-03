@@ -86,9 +86,9 @@ export async function GET(
             : market.title;
           
           return {
+            type: 'external-link' as const,
             label: `Trade: ${marketTitle} (${yesPrice}¢)`,
             href: `${baseUrl}/${market.ticker}`,
-            type: 'external-link' as const,
           };
         }),
       },

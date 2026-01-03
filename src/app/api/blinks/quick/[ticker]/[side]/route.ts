@@ -71,24 +71,24 @@ export async function GET(
       links: {
         actions: [
           {
+            type: "post" as const,
             label: `Buy ${normalizedSide.toUpperCase()} $10`,
             href: `${baseHref}?amount=10`,
-            type: "post"
           },
           {
+            type: "post" as const,
             label: `Buy ${normalizedSide.toUpperCase()} $25`,
             href: `${baseHref}?amount=25`,
-            type: "post"
           },
           {
+            type: "post" as const,
             label: `Buy ${normalizedSide.toUpperCase()} $50`,
             href: `${baseHref}?amount=50`,
-            type: "post"
           },
           {
+            type: "post" as const,
             label: `Buy ${normalizedSide.toUpperCase()} $100`,
             href: `${baseHref}?amount=100`,
-            type: 'post'
           },
         ],
       },

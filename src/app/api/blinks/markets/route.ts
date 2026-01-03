@@ -34,9 +34,9 @@ export async function GET(req: NextRequest) {
             label: "View Trending Markets",
             links: {
                 actions: trendingMarkets.map((market) => ({
+                    type: "external-link" as const,
                     label: `${market.title.slice(0, 40)}${market.title.length > 40 ? "..." : ""} - YES ${market.yes_bid}¢`,
                     href: `${requestUrl.origin}/api/blinks/markets/${market.ticker}`,
-                    type: "external-link" as const
                 })),
             },
         };
