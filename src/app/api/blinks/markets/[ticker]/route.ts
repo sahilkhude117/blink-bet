@@ -27,7 +27,7 @@ export async function GET(
         const market = await marketService.getMarket(ticker);
 
         const requestUrl = new URL(req.url);
-        const baseHref = `${requestUrl.origin}/api/blinks/market/${ticker}`;
+        const baseHref = `${requestUrl.origin}/api/blinks/markets/${ticker}`;
 
         const account = requestUrl.searchParams.get("account");
         let userPositionText = '';
@@ -70,22 +70,22 @@ export async function GET(
                     {
                         label: "Buy YES $10",
                         href: `${baseHref}?action=buy_yes&amount=10`,
-                        type: "external-link"
+                        type: "post"
                     },
                     {
                         label: "Buy YES $25",
                         href: `${baseHref}?action=buy_yes&amount=25`,
-                        type: "external-link"
+                        type: "post"
                     },
                     {
                         label: "Buy NO $10",
                         href: `${baseHref}?action=buy_no&amount=10`,
-                        type: "external-link"
+                        type: "post"
                     },
                     {
                         label: "Buy NO $25",
                         href: `${baseHref}?action=buy_no&amount=25`,
-                        type: "external-link"
+                        type: "post"
                     },
                     {
                         label: "Buy YES with Custom Amount",
@@ -97,7 +97,7 @@ export async function GET(
                                 required: true
                             }
                         ],
-                        type: "external-link"
+                        type: "post"
                     },
                     {
                         label: "Buy NO with Custom Amount",
@@ -109,7 +109,7 @@ export async function GET(
                                 required: true
                             }
                         ],
-                        type: "external-link"
+                        type: "post"
                     }
                 ]
             }
