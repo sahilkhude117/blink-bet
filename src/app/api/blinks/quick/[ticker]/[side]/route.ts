@@ -56,7 +56,10 @@ export async function GET(
     const requestUrl = new URL(req.url);
     const baseHref = `${requestUrl.origin}/api/blinks/quick/${ticker}/${side.toLowerCase()}`;
     const normalizedSide = side.toLowerCase() as 'yes' | 'no';
-    const price = normalizedSide === 'yes' ? market.yes_bid : market.no_bid;
+    
+    // Show ask prices (what you'd pay to buy)
+    const price = normalizedSide === 'yes' ? (market.yes_ask || market.last_price || 50) : (market.no_ask || market.last_price || 50);
+    const oppositePrice = normalizedSide === 'yes' ? (market.no_ask || market.last_price || 50) : (market.yes_ask || market.last_price || 50);
     const oppositeSide = normalizedSide === 'yes' ? 'NO' : 'YES';
 
     const payload: ActionGetResponse = {
@@ -67,7 +70,7 @@ export async function GET(
         `${market.subtitle || ''}`,
         '',
         `💰 ${normalizedSide.toUpperCase()} @ ${price}¢`,
-        `📊 ${oppositeSide} @ ${normalizedSide === 'yes' ? market.no_bid : market.yes_bid}¢`,
+        `📊 ${oppositeSide} @ ${oppositePrice}¢`,
         `📈 Volume: $${((market.volume || 0) / 100).toLocaleString()}`,
         '',
         `🚀 One-click trading - Choose your amount:`,
@@ -170,11 +173,16 @@ export async function POST(
     const marketService = getKalshiMarketService();
     const market = await marketService.getMarket(ticker);
 
-
-    const price = normalizedSide === 'yes' ? market.yes_bid : market.no_bid;
+    // For buying, use ask price (what sellers want). Fallback: last_price or 50¢
+    let price = normalizedSide === 'yes' ? market.yes_ask : market.no_ask;
     
-    // Validate price exists
+    // If ask is not available or invalid, use fallbacks
     if (!price || price <= 0) {
+      price = market.last_price || 50; // Default to 50¢ if no market data
+    }
+    
+    // Validate price is within valid range (1-99 cents)
+    if (price <= 0 || price >= 100) {
       const error: ActionError = {
         message: `❌ No valid price available for ${normalizedSide.toUpperCase()}. Market may have no liquidity.`,
       };

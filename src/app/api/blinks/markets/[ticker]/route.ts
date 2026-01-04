@@ -200,8 +200,22 @@ export async function POST(
         const market = await marketService.getMarket(ticker);
 
         const side = action === "buy_yes" ? "yes" : "no";
-        const price = side === 'yes' ? market.yes_bid: market.no_bid;
-        const quantity = Math.floor((amount * 100) / price!);
+        
+        // For buying, use ask price (what sellers want). Fallback: last_price or 50¢
+        let price = side === 'yes' ? market.yes_ask : market.no_ask;
+        if (!price || price <= 0) {
+            price = market.last_price || 50;
+        }
+        
+        // Validate price is within valid range (1-99 cents)
+        if (price <= 0 || price >= 100) {
+            const error: ActionError = {
+                message: `No valid price available for ${side.toUpperCase()}. Market may have no liquidity.`,
+            };
+            return NextResponse.json(error, { status: 400, headers });
+        }
+        
+        const quantity = Math.floor((amount * 100) / price);
 
         if (quantity <= 0) {
             const error: ActionError = {
