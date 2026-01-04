@@ -1,8 +1,12 @@
 import { getKalshiMarketService } from "@/services";
-import { ActionError, ActionGetResponse, createActionHeaders } from "@solana/actions";
+import { ActionError, ActionGetResponse, createActionHeaders, BLOCKCHAIN_IDS } from "@solana/actions";
 import { NextRequest, NextResponse } from "next/server";
 
-const headers = createActionHeaders();
+const headers = {
+    ...createActionHeaders(),
+    "X-Blockchain-Ids": BLOCKCHAIN_IDS.devnet,
+    "X-Action-Version": "2.4"
+};
 
 export async function GET(req: NextRequest) {
     try {
@@ -14,24 +18,25 @@ export async function GET(req: NextRequest) {
             status: 'open'
         });
 
+        // Input validation and user-friendly error messages
         if (!response.markets || response.markets.length === 0) {
             const error: ActionError = {
-                message: "No markets available at the moment"
+                message: "No markets are currently available. Please try again later."
             };
             return NextResponse.json(error, {
                 status: 404,
                 headers
-            })
+            });
         }
 
         const trendingMarkets = response.markets.sort((a, b) => (b.volume || 0) - (a.volume || 0)).slice(0, 5);
 
         const payload: ActionGetResponse = {
             type: "action",
-            title: "Top 5 Trending Prediction Markets on Kalshi",
+            title: "🔥 Top Trending Prediction Markets",
             icon: "https://kalshi.com/favicon.ico",
-            description: "Browse and trade on the hottest prediction markets on Kalshi",
-            label: "View Trending Markets",
+            description: "Explore the hottest prediction markets on Kalshi. Click any market to view details and place trades.\n\nMarkets are ranked by trading volume.",
+            label: "View Markets",
             links: {
                 actions: trendingMarkets.map((market) => ({
                     type: "external-link" as const,
@@ -42,12 +47,15 @@ export async function GET(req: NextRequest) {
         };
 
         return NextResponse.json(payload, { headers });
-    } catch (e: any) {
-        console.error("Error in market blink:", e);
-        const error: ActionError = {
-            message: e.message || "Failed to load markets"
+    } catch (error: any) {
+        // Server-side logging for debugging
+        console.error("[Markets Blink] Error loading markets:", error);
+        
+        // User-friendly error message in UI
+        const errorResponse: ActionError = {
+            message: error.message || "Unable to load markets. Please try again."
         };
-        return NextResponse.json(error, {
+        return NextResponse.json(errorResponse, {
             status: 500,
             headers
         });

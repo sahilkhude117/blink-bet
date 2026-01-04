@@ -8,10 +8,15 @@ import {
   ActionError,
   ActionGetResponse,
   createActionHeaders,
+  BLOCKCHAIN_IDS,
 } from '@solana/actions';
 import { getKalshiMarketService } from '@/services';
 
-const headers = createActionHeaders();
+const headers = {
+  ...createActionHeaders(),
+  "X-Blockchain-Ids": BLOCKCHAIN_IDS.devnet,
+  "X-Action-Version": "2.4"
+};
 
 export async function GET(
   req: NextRequest,
@@ -21,7 +26,7 @@ export async function GET(
     const { eventTicker } = await params;
 
     if (!eventTicker || typeof eventTicker !== 'string') {
-      const error: ActionError = { message: 'Event ticker is required' };
+      const error: ActionError = { message: 'Event identifier is required' };
       return NextResponse.json(error, {
         status: 400,
         headers,
@@ -96,18 +101,18 @@ export async function GET(
 
     return NextResponse.json(payload, { headers });
   } catch (e: any) {
-    console.error('Error in event blink:', e);
+    console.error('[Event Blink] Error loading event:', e);
     
     // Handle 404 for event not found
     if (e.response?.status === 404) {
       const error: ActionError = {
-        message: 'Event not found',
+        message: 'Event not found. It may have closed or been removed.',
       };
       return NextResponse.json(error, { status: 404, headers });
     }
 
     const error: ActionError = {
-      message: e.message || 'Failed to load event markets',
+      message: e.message || 'Unable to load event markets. Please try again.',
     };
     return NextResponse.json(error, {
       status: 500,

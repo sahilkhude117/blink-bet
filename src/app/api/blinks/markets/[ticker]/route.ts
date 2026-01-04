@@ -2,11 +2,15 @@ import { config } from "@/config";
 import prisma from "@/db";
 import { OrderStatus } from "@/generated/prisma/enums";
 import { getKalshiMarketService, getKalshiTradeService } from "@/services";
-import { ActionError, ActionGetResponse, ActionPostRequest, ActionPostResponse, createActionHeaders, createPostResponse } from "@solana/actions";
+import { ActionError, ActionGetResponse, ActionPostRequest, ActionPostResponse, createActionHeaders, createPostResponse, BLOCKCHAIN_IDS } from "@solana/actions";
 import { clusterApiUrl, Connection, PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
 import { NextRequest, NextResponse } from "next/server";
 
-const headers = createActionHeaders();
+const headers = {
+    ...createActionHeaders(),
+    "X-Blockchain-Ids": BLOCKCHAIN_IDS.devnet,
+    "X-Action-Version": "2.4"
+};
 
 export async function GET(
     req: NextRequest,
@@ -15,8 +19,9 @@ export async function GET(
     try {
         const { ticker } = await params;
 
+        // Input validation with user-friendly error
         if (!ticker || typeof ticker !== "string") {
-            const error: ActionError = { message: "Ticker is required" };
+            const error: ActionError = { message: "Market ticker is required" };
             return NextResponse.json(error, { 
                 status: 400,
                 headers
@@ -116,12 +121,21 @@ export async function GET(
         };
 
         return NextResponse.json(payload, { headers });
-    } catch (e: any) {
-        console.error("Error in market blink GET:", e);
-        const error: ActionError = {
-            message: e.message || 'Failed to load market',
+    } catch (error: any) {
+        console.error("[Market Detail] Error loading market:", error);
+        
+        // Handle specific error cases
+        if (error.response?.status === 404) {
+            const errorResponse: ActionError = {
+                message: "Market not found. It may have closed or settled."
+            };
+            return NextResponse.json(errorResponse, { status: 404, headers });
+        }
+        
+        const errorResponse: ActionError = {
+            message: error.message || 'Unable to load market details. Please try again.',
         };
-        return NextResponse.json(error, { status: 500, headers });
+        return NextResponse.json(errorResponse, { status: 500, headers });
     }
 }
 
@@ -142,19 +156,25 @@ export async function POST(
         const amountParam = requestUrl.searchParams.get("amount");
         const account = body.account;
 
+        // Comprehensive input validation
         if (!account) {
-            const error: ActionError = { message: "Wallet address is required" };
-            return NextResponse.json(error, { status: 400, headers })
+            const error: ActionError = { message: "Please connect your wallet to continue" };
+            return NextResponse.json(error, { status: 400, headers });
         }
 
         if (!action || !amountParam) {
-            const error: ActionError = { message: "Action and amount are required" };
+            const error: ActionError = { message: "Trade action and amount are required" };
             return NextResponse.json(error, { status: 400, headers });
         }
 
         const amount = parseFloat(amountParam);
         if (isNaN(amount) || amount <= 0) {
-            const error: ActionError = { message: "Invalid amount provided" };
+            const error: ActionError = { message: "Please enter a valid amount greater than $0" };
+            return NextResponse.json(error, { status: 400, headers });
+        }
+        
+        if (amount > 1000) {
+            const error: ActionError = { message: "Maximum trade amount is $1,000 per transaction" };
             return NextResponse.json(error, { status: 400, headers });
         }
 
@@ -315,11 +335,11 @@ export async function POST(
         };
         return NextResponse.json(error, { status: 400, headers });
         }
-    } catch (e: any) {
-        console.error('Error in market blink POST:', e);
-        const error: ActionError = {
-        message: e.message || 'Failed to execute trade',
+    } catch (error: any) {
+        console.error('[Market Trade] Error executing trade:', error);
+        const errorResponse: ActionError = {
+            message: error.message || 'Trade failed. Please try again or contact support.',
         };
-        return NextResponse.json(error, { status: 500, headers });
-  }
+        return NextResponse.json(errorResponse, { status: 500, headers });
+    }
 }

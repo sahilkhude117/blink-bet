@@ -13,6 +13,7 @@ import {
   ActionPostResponse,
   createActionHeaders,
   createPostResponse,
+  BLOCKCHAIN_IDS,
 } from '@solana/actions';
 import { getKalshiMarketService, getKalshiTradeService } from '@/services';
 import prisma from '@/db';
@@ -26,7 +27,11 @@ import {
 } from '@solana/web3.js';
 import { config } from '@/config';
 
-const headers = createActionHeaders();
+const headers = {
+  ...createActionHeaders(),
+  "X-Blockchain-Ids": BLOCKCHAIN_IDS.devnet,
+  "X-Action-Version": "2.4"
+};
 
 export async function GET(
   req: NextRequest,
@@ -36,12 +41,12 @@ export async function GET(
     const { ticker, side } = await params;
 
     if (!ticker || typeof ticker !== 'string') {
-      const error: ActionError = { message: 'Ticker is required' };
+      const error: ActionError = { message: 'Market ticker is required' };
       return NextResponse.json(error, { status: 400, headers });
     }
 
     if (!side || !['yes', 'no'].includes(side.toLowerCase())) {
-      const error: ActionError = { message: 'Side must be "yes" or "no"' };
+      const error: ActionError = { message: 'Please select YES or NO' };
       return NextResponse.json(error, { status: 400, headers });
     }
 
@@ -96,9 +101,9 @@ export async function GET(
 
     return NextResponse.json(payload, { headers });
   } catch (e: any) {
-    console.error('Error in quick trade blink GET:', e);
+    console.error('[Quick Trade] Error loading market:', e);
     const error: ActionError = {
-      message: e.message || 'Failed to load market',
+      message: e.message || 'Unable to load market. Please try again.',
     };
     return NextResponse.json(error, { status: 500, headers });
   }
@@ -121,24 +126,24 @@ export async function POST(
     const account = body.account;
 
     if (!account) {
-      const error: ActionError = { message: 'Wallet address is required' };
+      const error: ActionError = { message: 'Please connect your wallet to trade' };
       return NextResponse.json(error, { status: 400, headers });
     }
 
     if (!amountParam) {
-      const error: ActionError = { message: 'Amount is required' };
+      const error: ActionError = { message: 'Trade amount is required' };
       return NextResponse.json(error, { status: 400, headers });
     }
 
     const amount = parseFloat(amountParam);
     if (isNaN(amount) || amount <= 0 || ![10, 25, 50, 100].includes(amount)) {
-      const error: ActionError = { message: 'Invalid amount. Choose $10, $25, $50, or $100' };
+      const error: ActionError = { message: 'Please select a valid amount: $10, $25, $50, or $100' };
       return NextResponse.json(error, { status: 400, headers });
     }
 
     const normalizedSide = side.toLowerCase() as 'yes' | 'no';
     if (!['yes', 'no'].includes(normalizedSide)) {
-      const error: ActionError = { message: 'Side must be "yes" or "no"' };
+      const error: ActionError = { message: 'Please select YES or NO' };
       return NextResponse.json(error, { status: 400, headers });
     }
 
@@ -308,9 +313,9 @@ export async function POST(
       return NextResponse.json(error, { status: 400, headers });
     }
   } catch (e: any) {
-    console.error('Error in quick trade blink POST:', e);
+    console.error('[Quick Trade] Error executing trade:', e);
     const error: ActionError = {
-      message: e.message || 'Failed to execute trade',
+      message: e.message || 'Trade failed. Please try again or contact support.',
     };
     return NextResponse.json(error, { status: 500, headers });
   }

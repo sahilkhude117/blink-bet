@@ -7,11 +7,17 @@ import { NextRequest, NextResponse } from 'next/server';
 import { 
   ActionError, 
   ActionGetResponse, 
-  createActionHeaders 
+  createActionHeaders,
+  BLOCKCHAIN_IDS
 } from '@solana/actions';
 import { getKalshiTradeService } from '@/services';
 
-const headers = createActionHeaders();
+
+const headers = {
+  ...createActionHeaders(),
+  "X-Blockchain-Ids": BLOCKCHAIN_IDS.devnet,
+  "X-Action-Version": "2.4"
+};
 
 export async function GET(req: NextRequest) {
   try {
@@ -20,7 +26,7 @@ export async function GET(req: NextRequest) {
 
     if (!account) {
       const error: ActionError = {
-        message: 'Wallet address is required',
+        message: 'Please connect your wallet to view your portfolio',
       };
       return NextResponse.json(error, { status: 400, headers });
     }
@@ -44,12 +50,13 @@ export async function GET(req: NextRequest) {
           title: '📊 No Active Positions',
           icon: 'https://kalshi.com/favicon.ico',
           description: [
-            `💰 Balance: $${(balance.balance / 100).toFixed(2)}`,
-            `📈 Portfolio Value: $${(balance.portfolio_value / 100).toFixed(2)}`,
+            `💰 **Balance**: $${(balance.balance / 100).toFixed(2)}`,
+            `📈 **Portfolio Value**: $${(balance.portfolio_value / 100).toFixed(2)}`,
             ``,
-            "You don't have any active positions. Start trading to build your portfolio!"
+            "You don't have any active positions yet.",
+            "Start trading to build your portfolio!"
           ].join('\n'),
-          label: 'Get Started',
+          label: 'Browse Markets',
           links: {
             actions: [
               {
@@ -75,13 +82,13 @@ export async function GET(req: NextRequest) {
         title: '📊 Your Kalshi Portfolio',
         icon: 'https://kalshi.com/favicon.ico',
         description: [
-          `💰 Balance: $${(balance.balance / 100).toFixed(2)}`,
-          `📈 Portfolio Value: $${(balance.portfolio_value / 100).toFixed(2)}`,
-          `${totalPnl >= 0 ? '🟢' : '🔴'} Total P&L: ${totalPnl >= 0 ? '+' : ''}$${(totalPnl / 100).toFixed(2)}`,
-          `💼 Active Positions: ${positions.length}`,
-          `💸 Total Fees: $${(totalFees / 100).toFixed(2)}`,
+          `💰 **Balance**: $${(balance.balance / 100).toFixed(2)}`,
+          `📈 **Portfolio Value**: $${(balance.portfolio_value / 100).toFixed(2)}`,
+          `${totalPnl >= 0 ? '🟢' : '🔴'} **Total P&L**: ${totalPnl >= 0 ? '+' : ''}$${(totalPnl / 100).toFixed(2)}`,
+          `💼 **Active Positions**: ${positions.length}`,
+          `💸 **Total Fees**: $${(totalFees / 100).toFixed(2)}`,
           ``,
-          positions.length > 0 ? '📋 Top Positions:' : '',
+          positions.length > 0 ? '📋 **Top Positions**:' : '',
           ...positions.slice(0, 3).map(p => {
             const side = p.position > 0 ? 'YES' : 'NO';
             const shares = Math.abs(p.position);
@@ -113,20 +120,20 @@ export async function GET(req: NextRequest) {
       // If it's a 401, user needs to connect their Kalshi account
       if (kalshiError.response?.status === 401) {
         const error: ActionError = {
-          message: 'Kalshi account not connected. Please link your account at kalshi.com',
+          message: 'Kalshi account not connected. Please link your account at kalshi.com to view your portfolio.',
         };
         return NextResponse.json(error, { status: 401, headers });
       }
       
       const error: ActionError = {
-        message: kalshiError.message || 'Failed to load portfolio from Kalshi',
+        message: kalshiError.message || 'Unable to load portfolio. Please try again.',
       };
       return NextResponse.json(error, { status: 500, headers });
     }
   } catch (error: any) {
-    console.error('Error in portfolio blink:', error);
+    console.error('[Portfolio Blink] Error:', error);
     const actionError: ActionError = {
-      message: error.message || 'Failed to load portfolio',
+      message: error.message || 'Unable to load portfolio. Please try again.',
     };
     return NextResponse.json(actionError, { status: 500, headers });
   }
