@@ -182,7 +182,24 @@ export async function POST(
 
     // Check Kalshi balance
     const tradeService = getKalshiTradeService();
-    const balance = await tradeService.getBalance();
+    
+    let balance;
+    try {
+      balance = await tradeService.getBalance();
+    } catch (balanceError: any) {
+      console.error('[Quick Trade] Kalshi API authentication failed:', {
+        error: balanceError.message,
+        status: balanceError.response?.status,
+        data: balanceError.response?.data,
+      });
+      
+      const error: ActionError = {
+        message: balanceError.response?.status === 401 
+          ? '❌ Kalshi API authentication failed. Please check your API credentials in .env file.'
+          : `Unable to check balance: ${balanceError.message}`,
+      };
+      return NextResponse.json(error, { status: 500, headers });
+    }
 
     if (balance.balance < amount * 100) {
       const error: ActionError = {
@@ -298,6 +315,16 @@ export async function POST(
 
       return NextResponse.json(payload, { headers });
     } catch (kalshiError: any) {
+      console.error('[Quick Trade] Kalshi API error:', {
+        error: kalshiError.message,
+        status: kalshiError.response?.status,
+        statusText: kalshiError.response?.statusText,
+        data: kalshiError.response?.data,
+        ticker,
+        side: normalizedSide,
+        count,
+      });
+
       // Update order as failed
       await prisma.order.update({
         where: { id: order.id },
@@ -307,8 +334,15 @@ export async function POST(
         },
       });
 
+      if (kalshiError.response?.status === 401) {
+        const error: ActionError = {
+          message: '❌ Kalshi API authentication failed. Please check your API credentials.',
+        };
+        return NextResponse.json(error, { status: 500, headers });
+      }
+
       const error: ActionError = {
-        message: `Order failed: ${kalshiError.message}`,
+        message: `Order failed: ${kalshiError.response?.data?.error || kalshiError.message}`,
       };
       return NextResponse.json(error, { status: 400, headers });
     }

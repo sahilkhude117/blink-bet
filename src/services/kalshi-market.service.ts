@@ -55,7 +55,9 @@ export class KalshiMarketService {
     }
 
     const timestamp = Date.now().toString();
-    const signature = this.generateSignature(timestamp, method, path);
+    // Path for signature must include full path: /trade-api/v2/endpoint
+    const fullPath = `/trade-api/v2${path}`;
+    const signature = this.generateSignature(timestamp, method, fullPath);
 
     return {
       'KALSHI-ACCESS-KEY': this.apiKey,
