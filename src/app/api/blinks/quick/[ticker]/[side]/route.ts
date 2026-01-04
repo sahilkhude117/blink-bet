@@ -319,7 +319,7 @@ export async function POST(
         error: kalshiError.message,
         status: kalshiError.response?.status,
         statusText: kalshiError.response?.statusText,
-        data: kalshiError.response?.data,
+        data: JSON.stringify(kalshiError.response?.data, null, 2),
         ticker,
         side: normalizedSide,
         count,
@@ -341,8 +341,23 @@ export async function POST(
         return NextResponse.json(error, { status: 500, headers });
       }
 
+      // Extract error message from Kalshi API response
+      let errorMessage = 'Unknown error occurred';
+      if (kalshiError.response?.data?.error) {
+        const apiError = kalshiError.response.data.error;
+        if (typeof apiError === 'string') {
+          errorMessage = apiError;
+        } else if (apiError.message) {
+          errorMessage = apiError.message;
+        } else if (apiError.details) {
+          errorMessage = apiError.details;
+        }
+      } else if (kalshiError.message) {
+        errorMessage = kalshiError.message;
+      }
+
       const error: ActionError = {
-        message: `Order failed: ${kalshiError.response?.data?.error || kalshiError.message}`,
+        message: `❌ Order failed: ${errorMessage}`,
       };
       return NextResponse.json(error, { status: 400, headers });
     }
