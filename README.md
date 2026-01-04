@@ -17,6 +17,20 @@ We're the **first to integrate Kalshi's prediction markets with Solana Actions (
 2. **Social-First** - Trade where conversations happen: Twitter, Discord, Telegram.
 3. **One-Click UX** - From "I think the Pistons will win" to "Position opened" in 2 clicks.
 
+## 🐦 View Live Blinks on X (Twitter)
+
+See our Blinks in action! Click any link below to view interactive prediction market trading directly on Twitter:
+
+| Blink Type | Live Example on X |
+|------------|-------------------|
+| 🎯 **Specific Market** | [Trade: Cade Cunningham Double Doubles](https://x.com/sahilkhude_11/status/2007754212772544614?s=20) |
+| 📊 **Top Markets** | [Browse Trending Markets](https://x.com/sahilkhude_11/status/2007754073735594435?s=20) |
+| ⚡ **Quick Buy YES** | [One-Click YES Trade](https://x.com/sahilkhude_11/status/2007754349267870203?s=20) |
+| ⚡ **Quick Buy NO** | [One-Click NO Trade](https://x.com/sahilkhude_11/status/2007754487612715177?s=20) |
+| 💼 **View Portfolio** | [Check Your Positions](https://x.com/sahilkhude_11/status/2007754618026238331?s=20) |
+
+> 🎉 **Domain Approved!** Our Blinks are now live on Twitter. Click any link above to see the interactive trading interface unfurl directly in the tweet.
+
 ## 🏗️ How It Works
 
 ```
