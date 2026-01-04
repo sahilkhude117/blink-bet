@@ -1,6 +1,6 @@
 /**
  * Event Multi-Market Blink - View all markets for an event
- * GET /api/blinks/event/:eventTicker
+ * GET /api/actions/event/:eventTicker
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -62,7 +62,7 @@ export async function GET(
       });
     }
 
-    const baseUrl = `${requestUrl.origin}/api/blinks/markets`;
+    const baseUrl = `${requestUrl.origin}/api/actions/market`;
 
     // Build market summary for description
     const marketSummaries = openMarkets.slice(0, 5).map(m => {

@@ -10,37 +10,37 @@ export default function Home() {
     {
       title: "📊 Browse Markets",
       description: "Explore trending prediction markets",
-      url: `${baseUrl}/api/blinks/markets`,
+      url: `${baseUrl}/api/actions/markets`,
       category: "Discovery"
     },
     {
       title: "🎯 Specific Market",
       description: "Trade on Detroit vs Cleveland: Cade Cunningham Double Doubles",
-      url: `${baseUrl}/api/blinks/markets/KXNBA2D-26JAN04DETCLE-DETCCUNNINGHAM2`,
+      url: `${baseUrl}/api/actions/markets/KXNBA2D-26JAN04DETCLE-DETCCUNNINGHAM2`,
       category: "Trading"
     },
     {
       title: "⚡ Quick Buy YES",
       description: "Instant YES trade - One click, $10 trade",
-      url: `${baseUrl}/api/blinks/quick/KXNBA2D-26JAN04DETCLE-DETCCUNNINGHAM2/yes`,
+      url: `${baseUrl}/api/actions/quick/KXNBA2D-26JAN04DETCLE-DETCCUNNINGHAM2/yes`,
       category: "Quick Trade"
     },
     {
       title: "⚡ Quick Buy NO",
       description: "Instant NO trade - One click, $10 trade",
-      url: `${baseUrl}/api/blinks/quick/KXNBA2D-26JAN04DETCLE-DETCCUNNINGHAM2/no`,
+      url: `${baseUrl}/api/actions/quick/KXNBA2D-26JAN04DETCLE-DETCCUNNINGHAM2/no`,
       category: "Quick Trade"
     },
     {
       title: "💼 Portfolio",
       description: "View your positions and P&L",
-      url: `${baseUrl}/api/blinks/portfolio`,
+      url: `${baseUrl}/api/actions/portfolio`,
       category: "Account"
     },
     {
       title: "🗳️ Event Markets",
       description: "View all markets for an event",
-      url: `${baseUrl}/api/blinks/event/{event ticker}`,
+      url: `${baseUrl}/api/actions/event/{event ticker}`,
       category: "Discovery"
     }
   ];

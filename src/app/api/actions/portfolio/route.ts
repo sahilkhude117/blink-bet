@@ -1,6 +1,6 @@
 /**
  * Portfolio Blink - View user positions and P&L
- * GET /api/blinks/portfolio
+ * GET /api/actions/portfolio
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -54,7 +54,7 @@ export async function GET(req: NextRequest) {
               {
                 type: 'post' as const,
                 label: '🔥 View Top Markets',
-                href: `${requestUrl.origin}/api/blinks/markets`,
+                href: `${requestUrl.origin}/api/actions/markets`,
               },
             ],
           },
@@ -67,7 +67,7 @@ export async function GET(req: NextRequest) {
       const totalExposure = positions.reduce((sum, p) => sum + (p.market_exposure || 0), 0);
       const totalFees = positions.reduce((sum, p) => sum + (p.fees_paid || 0), 0);
 
-      const baseUrl = `${requestUrl.origin}/api/blinks/markets`;
+      const baseUrl = `${requestUrl.origin}/api/actions/markets`;
 
       const payload: ActionGetResponse = {
         type: 'action',
@@ -94,7 +94,7 @@ export async function GET(req: NextRequest) {
             {
               type: 'post' as const,
               label: '🔥 View Top Markets',
-              href: `${requestUrl.origin}/api/blinks/markets`,
+              href: `${requestUrl.origin}/api/actions/markets`,
             },
             ...positions.slice(0, 2).flatMap((position) => [
               {

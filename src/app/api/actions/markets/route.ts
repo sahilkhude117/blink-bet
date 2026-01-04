@@ -45,12 +45,12 @@ export async function GET(req: NextRequest) {
                 {
                     type: "post" as const,
                     label: `${truncatedTitle} - YES ${yesPrice}¢`,
-                    href: `${requestUrl.origin}/api/blinks/quick/${market.ticker}/yes?amount=10`,
+                    href: `${requestUrl.origin}/api/actions/quick/${market.ticker}/yes?amount=10`,
                 },
                 {
                     type: "post" as const,
                     label: `${truncatedTitle} - NO ${noPrice}¢`,
-                    href: `${requestUrl.origin}/api/blinks/quick/${market.ticker}/no?amount=10`,
+                    href: `${requestUrl.origin}/api/actions/quick/${market.ticker}/no?amount=10`,
                 }
             ];
         });

@@ -32,7 +32,7 @@ export async function GET(
         const market = await marketService.getMarket(ticker);
 
         const requestUrl = new URL(req.url);
-        const baseHref = `${requestUrl.origin}/api/blinks/markets/${ticker}`;
+        const baseHref = `${requestUrl.origin}/api/actions/markets/${ticker}`;
 
         const account = requestUrl.searchParams.get("account");
         let userPositionText = '';

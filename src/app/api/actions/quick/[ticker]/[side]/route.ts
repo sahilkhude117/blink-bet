@@ -1,6 +1,6 @@
 /**
  * Quick Trade Blink - Zero-friction trading with pre-filled side
- * GET/POST /api/blinks/quick/:ticker/:side
+ * GET/POST /api/actions/quick/:ticker/:side
  * 
  * Ultra-fast trading: Click → Choose amount → Done (2 clicks)
  */
@@ -54,7 +54,7 @@ export async function GET(
     const market = await marketService.getMarket(ticker);
 
     const requestUrl = new URL(req.url);
-    const baseHref = `${requestUrl.origin}/api/blinks/quick/${ticker}/${side.toLowerCase()}`;
+    const baseHref = `${requestUrl.origin}/api/actions/quick/${ticker}/${side.toLowerCase()}`;
     const normalizedSide = side.toLowerCase() as 'yes' | 'no';
     
     // Show ask prices (what you'd pay to buy)
