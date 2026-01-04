@@ -226,13 +226,16 @@ export async function POST(
 
     // Submit to Kalshi API
     try {
-      const kalshiOrder = await tradeService.createOrder({
+      // Create order params - market orders should NOT include price fields
+      const orderParams: any = {
         ticker: ticker,
         action: 'buy',
         side: normalizedSide,
         count: count,
         type: 'market',
-      });
+      };
+
+      const kalshiOrder = await tradeService.createOrder(orderParams);
 
       // Update order with Kalshi details
       await prisma.order.update({
