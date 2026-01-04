@@ -236,13 +236,23 @@ export async function POST(
         })
 
         try {
-            const kalshiOrder = await tradeService.createOrder({
+            // Create order params - even market orders need a price!
+            const orderParams: any = {
                 ticker: ticker,
                 action: 'buy',
                 side: side as 'yes' | 'no',
                 count: quantity,
                 type: 'market',
-            });
+            };
+
+            // Add price based on side - use current market price as limit
+            if (side === 'yes') {
+                orderParams.yes_price = price;
+            } else {
+                orderParams.no_price = price;
+            }
+
+            const kalshiOrder = await tradeService.createOrder(orderParams);
 
             await prisma.order.update({
                 where: { id: order.id },

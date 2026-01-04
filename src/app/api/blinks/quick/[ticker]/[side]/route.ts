@@ -170,8 +170,25 @@ export async function POST(
     const marketService = getKalshiMarketService();
     const market = await marketService.getMarket(ticker);
 
+    // Validate market is open for trading
+    if (market.status !== 'open') {
+      const error: ActionError = {
+        message: `❌ Market is ${market.status}. Trading is only available for open markets.`,
+      };
+      return NextResponse.json(error, { status: 400, headers });
+    }
+
     const price = normalizedSide === 'yes' ? market.yes_bid : market.no_bid;
-    const count = Math.floor((amount * 100) / price!);
+    
+    // Validate price exists
+    if (!price || price <= 0) {
+      const error: ActionError = {
+        message: `❌ No valid price available for ${normalizedSide.toUpperCase()}. Market may have no liquidity.`,
+      };
+      return NextResponse.json(error, { status: 400, headers });
+    }
+
+    const count = Math.floor((amount * 100) / price);
 
     if (count <= 0) {
       const error: ActionError = {
@@ -179,6 +196,16 @@ export async function POST(
       };
       return NextResponse.json(error, { status: 400, headers });
     }
+
+    console.log('[Quick Trade] Order details:', {
+      ticker,
+      side: normalizedSide,
+      action: 'buy',
+      count,
+      estimatedPrice: price,
+      marketStatus: market.status,
+      amount: amount
+    });
 
     // Check Kalshi balance
     const tradeService = getKalshiTradeService();
@@ -226,7 +253,8 @@ export async function POST(
 
     // Submit to Kalshi API
     try {
-      // Create order params - market orders should NOT include price fields
+      // Create order params - even market orders need a price!
+      // For market orders, the price acts as a limit: max willing to pay (buy) or min to accept (sell)
       const orderParams: any = {
         ticker: ticker,
         action: 'buy',
@@ -234,6 +262,13 @@ export async function POST(
         count: count,
         type: 'market',
       };
+
+      // Add price based on side - use current market price as limit
+      if (normalizedSide === 'yes') {
+        orderParams.yes_price = price;
+      } else {
+        orderParams.no_price = price;
+      }
 
       const kalshiOrder = await tradeService.createOrder(orderParams);
 
