@@ -22,15 +22,7 @@ const headers = {
 export async function GET(req: NextRequest) {
   try {
     const requestUrl = new URL(req.url);
-    const account = requestUrl.searchParams.get('account');
-
-    if (!account) {
-      const error: ActionError = {
-        message: 'Please connect your wallet to view your portfolio',
-      };
-      return NextResponse.json(error, { status: 400, headers });
-    }
-
+    
     // Get Kalshi portfolio data directly from API
     const tradeService = getKalshiTradeService();
     

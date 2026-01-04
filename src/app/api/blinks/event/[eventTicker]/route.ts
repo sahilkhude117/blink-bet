@@ -66,7 +66,7 @@ export async function GET(
 
     // Build market summary for description
     const marketSummaries = openMarkets.slice(0, 5).map(m => {
-      const yesPrice = m.yes_bid || m.last_price || 0;
+      const yesPrice = m.yes_ask || m.last_price || m.yes_bid || 50;
       return `• ${m.title}: YES ${yesPrice}¢`;
     });
 
@@ -87,8 +87,9 @@ export async function GET(
       label: 'Quick Trade',
       links: {
         actions: openMarkets.slice(0, 3).flatMap((market) => {
-          const yesPrice = market.yes_bid || market.last_price || 0;
-          const noPrice = market.no_bid || 0;
+          // Show ask prices (what you'd pay to buy) with fallbacks
+          const yesPrice = market.yes_ask || market.last_price || market.yes_bid || 50;
+          const noPrice = market.no_ask || market.last_price || market.no_bid || 50;
           const marketTitle = market.title.length > 25 
             ? `${market.title.slice(0, 25)}...` 
             : market.title;

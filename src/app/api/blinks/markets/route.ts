@@ -37,15 +37,19 @@ export async function GET(req: NextRequest) {
                 ? `${market.title.slice(0, 40)}...` 
                 : market.title;
             
+            // Show ask prices (what you'd pay to buy) with fallbacks
+            const yesPrice = market.yes_ask || market.last_price || market.yes_bid || 50;
+            const noPrice = market.no_ask || market.last_price || market.no_bid || 50;
+            
             return [
                 {
                     type: "post" as const,
-                    label: `${truncatedTitle} - YES ${market.yes_bid}¢`,
+                    label: `${truncatedTitle} - YES ${yesPrice}¢`,
                     href: `${requestUrl.origin}/api/blinks/quick/${market.ticker}/yes?amount=10`,
                 },
                 {
                     type: "post" as const,
-                    label: `${truncatedTitle} - NO ${market.no_bid}¢`,
+                    label: `${truncatedTitle} - NO ${noPrice}¢`,
                     href: `${requestUrl.origin}/api/blinks/quick/${market.ticker}/no?amount=10`,
                 }
             ];
@@ -55,7 +59,11 @@ export async function GET(req: NextRequest) {
             type: "action",
             title: "🔥 Top Trending Prediction Markets",
             icon: "https://kalshi.com/favicon.ico",
-            description: `Quick trade on the hottest prediction markets!\n\nEach button places a $10 trade instantly.\nDefault amount: $10 per trade\n\n📊 **Top 5 Markets**:\n${trendingMarkets.map((m, i) => `${i+1}. ${m.title.slice(0, 50)}${m.title.length > 50 ? '...' : ''}\n   YES ${m.yes_bid}¢ | NO ${m.no_bid}¢ | Volume: $${((m.volume || 0) / 100).toLocaleString()}`).join('\n\n')}`,
+            description: `Quick trade on the hottest prediction markets!\n\nEach button places a $10 trade instantly.\nDefault amount: $10 per trade\n\n📊 **Top 5 Markets**:\n${trendingMarkets.map((m, i) => {
+                const yesPrice = m.yes_ask || m.last_price || m.yes_bid || 50;
+                const noPrice = m.no_ask || m.last_price || m.no_bid || 50;
+                return `${i+1}. ${m.title.slice(0, 50)}${m.title.length > 50 ? '...' : ''}\n   YES ${yesPrice}¢ | NO ${noPrice}¢ | Volume: $${((m.volume || 0) / 100).toLocaleString()}`;
+            }).join('\n\n')}`,
             label: "Quick Trade",
             links: {
                 actions: marketActions,

@@ -64,11 +64,15 @@ export async function GET(
             }
         }
 
+        // Show ask prices (what you'd pay to buy) with fallbacks
+        const yesPrice = market.yes_ask || market.last_price || market.yes_bid || 50;
+        const noPrice = market.no_ask || market.last_price || market.no_bid || 50;
+
         const payload: ActionGetResponse = {
             type: 'action',
             title: market.title,
             icon: "https://kalshi.com/favicon.ico",
-            description: `${market.subtitle || ""}\n\nYES ${market.yes_bid} | NO ${market.no_bid}\nVolum: $${((market.volume || 0) / 100).toLocaleString()}${userPositionText}`,
+            description: `${market.subtitle || ""}\n\nYES ${yesPrice}¢ | NO ${noPrice}¢\nVolume: $${((market.volume || 0) / 100).toLocaleString()}${userPositionText}`,
             label: "Trade Market",
             links: {
                 actions: [
