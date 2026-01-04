@@ -48,16 +48,7 @@ export async function GET(req: NextRequest) {
             "You don't have any active positions yet.",
             "Start trading to build your portfolio!"
           ].join('\n'),
-          label: 'Browse Markets',
-          links: {
-            actions: [
-              {
-                type: 'post' as const,
-                label: '🔥 View Top Markets',
-                href: `${requestUrl.origin}/api/actions/markets`,
-              },
-            ],
-          },
+          label: 'No Positions',
         };
         return NextResponse.json(payload, { headers });
       }
@@ -91,11 +82,6 @@ export async function GET(req: NextRequest) {
         label: 'View Portfolio',
         links: {
           actions: [
-            {
-              type: 'post' as const,
-              label: '🔥 View Top Markets',
-              href: `${requestUrl.origin}/api/actions/markets`,
-            },
             ...positions.slice(0, 2).flatMap((position) => [
               {
                 type: 'post' as const,

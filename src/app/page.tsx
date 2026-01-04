@@ -46,14 +46,15 @@ export default function Home() {
   ];
 
   const copyToClipboard = (url: string, index: number) => {
-    navigator.clipboard.writeText(url);
+    const dialToUrl = `https://dial.to/developer?url=${encodeURIComponent(url)}&cluster=mainnet`;
+    navigator.clipboard.writeText(dialToUrl);
     setCopiedIndex(index);
     setTimeout(() => setCopiedIndex(null), 2000);
   };
 
   const shareOnTwitter = (url: string, title: string) => {
-    const tweetText = `Check out this bet on Kalshi! ${title}\n\n`;
-    const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}&url=${encodeURIComponent(url)}`;
+    const dialToUrl = `https://dial.to/developer?url=${encodeURIComponent(url)}&cluster=mainnet`;
+    const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(dialToUrl)}`;
     window.open(twitterUrl, '_blank', 'noopener,noreferrer');
   };
 
