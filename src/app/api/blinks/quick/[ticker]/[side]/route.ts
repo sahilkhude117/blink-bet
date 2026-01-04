@@ -170,13 +170,6 @@ export async function POST(
     const marketService = getKalshiMarketService();
     const market = await marketService.getMarket(ticker);
 
-    // Validate market is open for trading
-    if (market.status !== 'open') {
-      const error: ActionError = {
-        message: `❌ Market is ${market.status}. Trading is only available for open markets.`,
-      };
-      return NextResponse.json(error, { status: 400, headers });
-    }
 
     const price = normalizedSide === 'yes' ? market.yes_bid : market.no_bid;
     
