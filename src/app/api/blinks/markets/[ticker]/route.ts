@@ -201,16 +201,26 @@ export async function POST(
 
         const side = action === "buy_yes" ? "yes" : "no";
         
-        // For buying, use ask price (what sellers want). Fallback: last_price or 50¢
+        // For buying, use ask price (what sellers want). Multiple fallbacks for liquidity
         let price = side === 'yes' ? market.yes_ask : market.no_ask;
+        
+        // Try multiple fallbacks
         if (!price || price <= 0) {
-            price = market.last_price || 50;
+            price = market.last_price;
+        }
+        if (!price || price <= 0) {
+            // Try opposite side bid as last resort
+            price = side === 'yes' ? market.yes_bid : market.no_bid;
+        }
+        if (!price || price <= 0) {
+            // Use 50¢ as absolute fallback
+            price = 50;
         }
         
         // Validate price is within valid range (1-99 cents)
         if (price <= 0 || price >= 100) {
             const error: ActionError = {
-                message: `No valid price available for ${side.toUpperCase()}. Market may have no liquidity.`,
+                message: `💧 This market has no liquidity right now. Try another market or check back later!`,
             };
             return NextResponse.json(error, { status: 400, headers });
         }
