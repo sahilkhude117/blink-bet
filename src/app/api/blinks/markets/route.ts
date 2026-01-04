@@ -69,9 +69,9 @@ export async function GET(req: NextRequest) {
             links: {
                 actions: [
                     {
-                        type: "external-link" as const,
+                        type: "post" as const,
                         label: "Select Market",
-                        href: `${requestUrl.origin}/api/blinks/markets?ticker={ticker}`,
+                        href: `${requestUrl.origin}/api/blinks/markets/redirect?ticker={ticker}`,
                         parameters: [
                             {
                                 type: "select",
