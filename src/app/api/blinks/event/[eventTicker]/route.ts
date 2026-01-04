@@ -14,7 +14,7 @@ import { getKalshiMarketService } from '@/services';
 
 const headers = {
   ...createActionHeaders(),
-  "X-Blockchain-Ids": BLOCKCHAIN_IDS.devnet,
+  "X-Blockchain-Ids": BLOCKCHAIN_IDS.mainnet,
   "X-Action-Version": "2.4"
 };
 
