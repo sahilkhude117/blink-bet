@@ -60,9 +60,9 @@ export async function GET(req: NextRequest) {
           links: {
             actions: [
               {
-                label: 'Browse Markets',
+                type: 'post' as const,
+                label: '🔥 View Top Markets',
                 href: `${requestUrl.origin}/api/blinks/markets`,
-                type: 'external-link' as const,
               },
             ],
           },
@@ -100,15 +100,22 @@ export async function GET(req: NextRequest) {
         links: {
           actions: [
             {
-              type: 'external-link' as const,
-              label: 'Browse Markets',
+              type: 'post' as const,
+              label: '🔥 View Top Markets',
               href: `${requestUrl.origin}/api/blinks/markets`,
             },
-            ...positions.slice(0, 3).map((position) => ({
-              type: 'external-link' as const,
-              label: `Trade ${position.ticker}`,
-              href: `${baseUrl}/${position.ticker}?account=${account}`,
-            })),
+            ...positions.slice(0, 2).flatMap((position) => [
+              {
+                type: 'post' as const,
+                label: `${position.ticker} - Quick YES`,
+                href: `${baseUrl}/quick/${position.ticker}/yes?amount=10`,
+              },
+              {
+                type: 'post' as const,
+                label: `${position.ticker} - Quick NO`,
+                href: `${baseUrl}/quick/${position.ticker}/no?amount=10`,
+              },
+            ]),
           ],
         },
       };

@@ -79,22 +79,32 @@ export async function GET(
         '',
         `📊 ${openMarkets.length} Markets Available`,
         '',
+        'Quick trade with one click - $10 per trade:',
+        '',
         ...marketSummaries,
-        openMarkets.length > 5 ? `\n...and ${openMarkets.length - 5} more` : '',
+        openMarkets.length > 5 ? `\n...and ${openMarkets.length - 5} more markets` : '',
       ].filter(Boolean).join('\n'),
-      label: 'View Markets',
+      label: 'Quick Trade',
       links: {
-        actions: openMarkets.map((market) => {
+        actions: openMarkets.slice(0, 3).flatMap((market) => {
           const yesPrice = market.yes_bid || market.last_price || 0;
-          const marketTitle = market.title.length > 35 
-            ? `${market.title.slice(0, 35)}...` 
+          const noPrice = market.no_bid || 0;
+          const marketTitle = market.title.length > 25 
+            ? `${market.title.slice(0, 25)}...` 
             : market.title;
           
-          return {
-            type: 'external-link' as const,
-            label: `Trade: ${marketTitle} (${yesPrice}¢)`,
-            href: `${baseUrl}/${market.ticker}`,
-          };
+          return [
+            {
+              type: 'post' as const,
+              label: `${marketTitle} - YES ${yesPrice}¢`,
+              href: `${baseUrl}/quick/${market.ticker}/yes?amount=10`,
+            },
+            {
+              type: 'post' as const,
+              label: `${marketTitle} - NO ${noPrice}¢`,
+              href: `${baseUrl}/quick/${market.ticker}/no?amount=10`,
+            },
+          ];
         }),
       },
     };
